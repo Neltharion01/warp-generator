@@ -100,6 +100,18 @@
   @media (max-width: 480px) {
     .link-row { flex-direction: column; }
   }
+
+  summary {
+    color: var(--muted);
+  }
+  details {
+    background: var(--surface);
+    margin-top: 32px;
+    padding: 16px;
+  }
+  details, details p {
+    color: var(--text);
+  }
 </style>
 </head>
 <body>
@@ -111,6 +123,15 @@
     <div class="link" id="link" tabindex="0">{{SUBSCRIPTION_URL}}</div>
     <button type="button" id="copy">Копировать</button>
   </div>
+
+  <details>
+    <summary>Какие клиенты поддерживаются?</summary>
+    <p>Любой, который кушает Xray json и содержит xray-core достаточно новой версии (нужна поддержка MASQUE)</p>
+    <p>Рекомендуется: <a href="https://github.com/throneproj/ThroneForAndroid">Throne</a></p>
+    Также поддерживаются v2rayNG и Happ<br>
+    В Exclave подписка НЕ работает<br>
+    INCY подписку не поддерживает - импортируйте json вручную!
+  </details>
 
   {{CONFIGS}}
 </main>

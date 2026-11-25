@@ -2,10 +2,10 @@
 @media (prefers-color-scheme:dark){:root{--bg:#0e1219;--surf:#151b25;--line:#243040;--text:#e6edf0;--mute:#8a99a3;--acc:#47d8bb;--on:#0e1219;--err:#ff7b6b;--btn:#2e3239;--btn-fg:#47d8bb;color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{max-width:600px;margin:0 auto;padding:32px 20px 48px}
+main{max-width:800px;margin:0 auto;padding:32px 20px 48px}
 h1{font-size:2.4rem;line-height:1.1;margin:0 0 8px;letter-spacing:-.02em;font-weight:750}
 p.sub{color:var(--mute);max-width:46ch}
-label{display:block;font-weight:600;margin-bottom:6px}
+label{display:block;font-weight:600;margin-top:16px;margin-bottom:6px}
 input[type=text],select{width:100%;padding:12px 14px;font:inherit;color:var(--text);background:var(--surf);border:1px solid var(--line)}
 input[type=text]:focus,select:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 button{font:inherit;font-weight:600;padding:12px 16px;border:1px solid var(--btn);background:var(--btn);color:var(--btn-fg);cursor:pointer}
@@ -19,7 +19,6 @@ button.go:hover:not(:disabled){border-color:var(--text)}
 .acts svg{width:20px;height:20px;flex:none}
 #msg{margin-top:10px;min-height:1.4em;font-size:.9rem;color:var(--mute)}
 #msg.e{color:var(--err)}
-a{color:var(--acc)}
+#bAgain{color:var(--acc)}
 summary{color:var(--btn-fg)}
 details{background:var(--btn);margin-top:16px;padding:8px}
-label.second{margin-top:16px}
