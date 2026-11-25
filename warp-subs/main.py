@@ -258,7 +258,8 @@ def build_xray(wg, m, sni, msni, pretty=False):
         separators = (",", ": ");
     return json.dumps(configs[0] if len(configs) == 1 else configs, indent=indent, separators=separators);
 
-# Subscription url: /warp/subs/<wireguard_secret>/<masque_secret>?sni=...&msni=...
+# Subscription url: /warp/subs/<wireguard_secret>/<masque_secret>?sni=...&msni=...&format=...
+# format is optional and overrides the response format picked by User-Agent: json or amneziawg
 # "_" in place of a secret means that this part is absent
 # wireguard_secret = client id (3 bytes) + private key (32) + ipv6 (16), base64url
 # masque_secret = private key (raw 32 byte scalar) + ipv6 (16), base64url
@@ -301,8 +302,15 @@ def parse_masque_secret(secret):
     except ValueError:
         raise BadRequest("Bad masque secret");
 
-def build_body(ua, accept, url, wg, m, sni, msni):
+FORMATS = ("json", "amneziawg");
+
+def build_body(ua, accept, fmt, url, wg, m, sni, msni):
     # Returns (body, content type)
+    # An explicit format overrides everything that is guessed from the client
+    if fmt == "json":
+        return build_xray(wg, m, sni, msni), "application/json; charset=utf-8";
+    if fmt == "amneziawg":
+        return build_amneziawg(wg["private_key"], wg["ipv6"], sni), "text/plain; charset=utf-8";
     if ua.startswith("Throne/"):
         lines = [];
         if wg:
@@ -346,19 +354,24 @@ class SubscriptionServer(BaseHTTPRequestHandler):
         query = parse_qs(url.query);
         sni = query.get("sni", [""])[0].strip() or default_sni();
         msni = query.get("msni", [""])[0].strip() or default_msni();
+        fmt = query.get("format", [""])[0];
         try:
             if not HOST_RE.match(sni) or not HOST_RE.match(msni):
                 raise BadRequest("Bad sni");
+            if fmt and fmt not in FORMATS:
+                raise BadRequest("Bad format");
             wg = parse_wg_secret(parts[2]);
             m = parse_masque_secret(parts[3]);
             if not wg and not m:
                 raise BadRequest("Nothing to generate");
+            if fmt == "amneziawg" and not wg:
+                raise BadRequest("The amneziawg format needs the wireguard part");
         except BadRequest as e:
             return self.send_error(400, str(e));
 
         full_url = sub_url(parts[2], parts[3], sni, msni);
         try:
-            cfg, content_type = build_body(ua, self.headers.get("Accept", ""), full_url, wg, m, sni, msni);
+            cfg, content_type = build_body(ua, self.headers.get("Accept", ""), fmt, full_url, wg, m, sni, msni);
         except UpstreamError as e:
             self.log_error("signature service error: %r", e);
             return self.send_error(500);

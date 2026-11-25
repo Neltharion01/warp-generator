@@ -9,6 +9,13 @@ Directory structure (SORRY, I am not Claude):
 - `quicsig/` - signature generation backend
 - `wgcf/` - OPTIONAL, just two tiny python scripts to make the same thing from cli. [wireguard](https://raw.githubusercontent.com/Neltharion01/warp-generator/refs/heads/master/wgcf/wgcf.py), [masque](https://raw.githubusercontent.com/Neltharion01/warp-generator/refs/heads/master/wgcf/wgcf_masque.py)
 
+Subscription url:
+```
+/warp/subs/<wireguard_secret>/<masque_secret>?sni=apteka.ru&msni=yandex.ru
+```
+- `wireguard_secret` is base64url of client id (3 bytes) + private key (32) + ipv6 (16), `masque_secret` is base64url of private key (raw 32 byte scalar) + ipv6 (16). `_` in place of a secret means that this part is absent
+- `format` (optional) overrides the response format that is otherwise picked by User-Agent: `json` - xray json, `amneziawg` - AmneziaWG conf (needs the wireguard part)
+
 Make sure to remove all references to `deathwing.dedyn.io` if you plan to host this yourself. 
 
 Relevant caddy snippet for proxying:
