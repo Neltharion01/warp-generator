@@ -119,19 +119,20 @@ function ipv6Bytes(a){
   if(out.length!==16) throw new Error("bad IPv6: "+a);
   return out;
 }
-function subLink(){
+function subLink(format){
   // wireguard_secret = client_id[3] + privateKey[32] + ipv6[16] (51 байт, 68 символов)
   // masque_secret = privateKey[32] (сырой скаляр) + ipv6[16] (48 байт, 64 символа)
   const w = b64url([...S.reserved, ...unb64(S.priv), ...ipv6Bytes(S.v6)]);
   const m = b64url([...M.scalar, ...ipv6Bytes(M.v6)]);
-  return `${SUB}${w}/${m}?${new URLSearchParams({sni:S.sni,msni:M.sni})}`;
+  const q = new URLSearchParams({sni:S.sni,msni:M.sni});
+  if(format) q.set("format",format);
+  return `${SUB}${w}/${m}?${q}`;
 }
 $("bJson").onclick = async () => {
   $("bJson").disabled = true;
   try{
-    // xray json собирает сервер подписок. Accept: application/json отдаёт его и браузеру,
-    // потому что fetch не может поменять User-Agent
-    const r = await fetch(subLink(),{headers:{"Accept":"application/json"}});
+    // xray json собирает сервер подписок, format=json просит именно его
+    const r = await fetch(subLink("json"));
     if(!r.ok) throw new Error("подписка: HTTP "+r.status);
     save("WARP.json",JSON.stringify(await r.json(),null,2),"application/json");
     msg("");
