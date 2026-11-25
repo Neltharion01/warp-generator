@@ -72,7 +72,7 @@ def build_html(url, wg, m, sni, msni):
     if wg:
         sections += html_section("config-awg", "Конфиг для AmneziaWG", build_amneziawg(wg["private_key"], wg["ipv6"], sni), "WARP.conf");
     # Exactly what an xray json subscription returns, for manual import
-    sections += html_section("config-xray", "Xray JSON", build_xray(wg, m, sni, msni), "WARP.json");
+    sections += html_section("config-xray", "Xray JSON", build_xray(wg, m, sni, msni, pretty=True), "WARP.json");
     data = data.replace("{{SUBSCRIPTION_URL}}", html.escape(url));
     data = data.replace("{{CONFIGS}}", sections);
     return data;
@@ -110,6 +110,9 @@ def build_throne(private_key, ipv6_addr, client_id, sni):
     for i, sig in enumerate(quic_signature(sni)):
         opts["i" + str(i+1)] = "<b 0x" + sig + ">";
     return "wg://162.159.192.1:878?" + urlencode(opts, quote_via=quote) + "#" + quote(WG_NAME);
+
+def build_incy(wg, sni):
+    return "awg://" + base64.urlsafe_b64encode(build_amneziawg(wg["private_key"], wg["ipv6"], sni).encode()).decode().rstrip("=");
 
 def build_finalmask(sni):
     noise = [];
@@ -241,14 +244,19 @@ def build_throne_masque(m, profile, msni):
     # Url-safe base64 without padding, the same as Throne writes (it reads any variant)
     return "throne://add/" + base64.urlsafe_b64encode(raw.encode()).decode().rstrip("=");
 
-def build_xray(wg, m, sni, msni):
+def build_xray(wg, m, sni, msni, pretty=False):
     configs = [];
     if wg:
         configs.append(xray_config(xray_wireguard(wg, sni), WG_NAME));
     if m:
         for profile in MASQUE_PROFILES:
             configs.append(xray_config(xray_masque(m, profile, msni), profile["name"]));
-    return json.dumps(configs[0] if len(configs) == 1 else configs, separators=",:");
+    indent = None;
+    separators = ",:";
+    if pretty:
+        indent = 4;
+        separators = (",", ": ");
+    return json.dumps(configs[0] if len(configs) == 1 else configs, indent=indent, separators=separators);
 
 # Subscription url: /warp/subs/<wireguard_secret>/<masque_secret>?sni=...&msni=...
 # "_" in place of a secret means that this part is absent
@@ -302,12 +310,15 @@ def build_body(ua, accept, url, wg, m, sni, msni):
         if m:
             lines += [build_throne_masque(m, profile, msni) for profile in MASQUE_PROFILES];
         return "\n".join(lines), None;
+    elif ua.startswith("INCY/"):
+        # INCY can't parse returned xray-json, only awg link works
+        return build_incy(wg, sni), None;
     # The generator page downloads the xray json with fetch(), and a browser cannot change User-Agent
     if "application/json" in accept:
         return build_xray(wg, m, sni, msni), "application/json; charset=utf-8";
     if ua.startswith("Mozilla/5.0"):
         return build_html(url, wg, m, sni, msni), "text/html; charset=utf-8";
-    return build_xray(wg, m, sni, msni), None;
+    return build_xray(wg, m, sni, msni), "application/json; charset=utf-8";
 
 class SubscriptionServer(BaseHTTPRequestHandler):
     # The secrets in the url contain private keys: never write them to the log
@@ -315,10 +326,17 @@ class SubscriptionServer(BaseHTTPRequestHandler):
         path = re.sub(r"(/warp/subs/)[^?\s]*", r"\1***", self.path);
         self.log_message('"%s %s %s" %s', self.command, path, self.request_version, code);
 
+    def send_error_simple(self, code, msg=""):
+        msg = msg.encode();
+        self.send_response(code);
+        self.send_header("Content-Length", str(len(msg)));
+        self.end_headers();
+        self.wfile.write(msg);
+
     def do_GET(self):
         ua = self.headers.get("User-Agent", "");
         if ua.startswith("Exclave/"):
-            return self.send_error(404, "Unsupported client");
+            return self.send_error_simple(500, "Unsupported client");
 
         url = urlsplit(self.path);
         parts = url.path.strip("/").split("/");
