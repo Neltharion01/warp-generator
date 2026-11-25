@@ -22,7 +22,6 @@ def read_json_file(path):
     f.close();
     return data;
 
-#config = read_json_file("/etc/drakovpn/subs/config.json");
 config = read_json_file("config.json");
 
 def encode_routing():
@@ -362,7 +361,8 @@ class SubscriptionServer(BaseHTTPRequestHandler):
         self.send_header("profile-update-interval", config["profile-update-interval"]);
         self.send_header("profile-web-page-url", full_url);
         self.send_header("announce", encode_announce());
-        self.send_header("support-url", config["support-url"]);
+        if "support-url" in config:
+            self.send_header("support-url", config["support-url"]);
         # Routing for Happ and INCY
         self.send_header("routing", encode_routing());
 
