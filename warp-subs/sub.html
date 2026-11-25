@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Ваш WARP конфиг</title>
+<style>
+  :root {
+    --accent: #47d8bb;
+    --on-accent: #0e1219;
+    --bg: #0e1219;
+    --surface: #161c26;
+    --border: #263040;
+    --text: #e6ebf2;
+    --muted: #94a0b3;
+    --focus: rgba(71, 216, 187, .35);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --accent: #0e9f86;
+      --on-accent: #ffffff;
+      --bg: #f3f7f8;
+      --surface: #ffffff;
+      --border: #d5dee4;
+      --text: #0e1219;
+      --muted: #55637a;
+      --focus: rgba(14, 159, 134, .3);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+    display: flex;
+    justify-content: center;
+    padding: 48px 16px;
+  }
+  main { width: 100%; max-width: 640px; }
+  h1 { font-size: 1.75rem; margin: 0 0 8px; }
+  h2 { font-size: 1.25rem; margin: 40px 0 12px; }
+  p { margin: 0 0 16px; color: var(--muted); }
+
+  .link-row { display: flex; gap: 8px; }
+  .link {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .9rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    user-select: all;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 20px;
+    min-height: 46px;
+    border: 0;
+    border-radius: 0;
+    background: var(--accent);
+    color: var(--on-accent);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter .15s;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:focus-visible, textarea:focus-visible, .link:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 1px;
+  }
+  button svg { fill: currentColor; flex: none; }
+
+  textarea {
+    width: 100%;
+    min-height: 280px;
+    padding: 14px;
+    resize: vertical;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .85rem;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  @media (max-width: 480px) {
+    .link-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Ваш WARP конфиг</h1>
+  <p>Эта ссылка работает как подписка. Вы можете скопировать её в любой поддерживаемый клиент</p>
+  <div class="link-row">
+    <!-- Сервер может подставить ссылку сюда, иначе берётся location.href -->
+    <div class="link" id="link" tabindex="0">{{SUBSCRIPTION_URL}}</div>
+    <button type="button" id="copy">Копировать</button>
+  </div>
+
+  {{CONFIGS}}
+</main>
+
+<script>
+  var linkEl = document.getElementById('link');
+  var copyBtn = document.getElementById('copy');
+
+  // Если сервер не подставил ссылку, берём адрес страницы
+  if (!linkEl.textContent.trim() || linkEl.textContent.indexOf('{{') === 0) {
+    linkEl.textContent = location.href;
+  }
+
+  copyBtn.addEventListener('click', function () {
+    var text = linkEl.textContent.trim();
+    var done = function () {
+      copyBtn.textContent = 'Скопировано';
+      setTimeout(function () { copyBtn.textContent = 'Копировать'; }, 1500);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done);
+    } else {
+      var r = document.createRange();
+      r.selectNodeContents(linkEl);
+      var s = getSelection();
+      s.removeAllRanges();
+      s.addRange(r);
+      document.execCommand('copy');
+      done();
+    }
+  });
+
+  document.querySelectorAll('button[data-target]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = document.getElementById(btn.dataset.target).value;
+      var blob = new Blob([text], { type: 'application/octet-stream' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = btn.dataset.file;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    });
+  });
+</script>
+</body>
+</html>

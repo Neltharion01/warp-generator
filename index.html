@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WARP Generator</title>
+<link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+<main>
+<h1>DrakoVPN WARP Generator</h1>
+<p class="sub">Создайте запасную конфигурацию WARP на случай, если ваш VPN перестанет работать</p>
+
+<label for="sni">SNI для WireGuard фейка</label>
+<input type="text" id="sni" value="apteka.ru" placeholder="apteka.ru" autocomplete="off" autocapitalize="off" spellcheck="false">
+
+<details>
+<summary>Список других доменов, которые также могут заработать:</summary>
+<p>
+<code>101.ru 1tv.ru 2gis.ru 2ip.ru 5-tv.ru 9111.ru aa-rim.ru apteka.ru arbitr.ru asna.ru baby.ru consultant.ru culture.ru deepseek.com dnevnik.ru dushevoi.ru eapteka.ru edadeal.ru feel-feed.ru fips.ru garant.ru getcourse.ru goldapple.ru hv4.ru infourok.ru interfax.ru irecommend.ru is74.ru ivi.ru khl.ru kiloservice.ru kupol24.ru lib.ru litres.ru livelib.ru mediametrics.ru mediapunch.ru medliga.ru mirtesen.ru mjobs.ru mtsdengi.ru multiurok.ru mvideo.ru nabiraem.ru nic.ru nsportal.ru ntv.ru playfamily.ru printio.ru profi.ru rabota.ru retailrocket.ru rsl.ru rusneb.ru rutube.ru sdamgia.ru skillstaff.ru skyeng.ru smi2.ru smotrim.ru sovcombank.ru sport24.ru stihi.ru streamgo.ru sudact.ru sudrf.ru superjob.ru tiu.ru tutu.ru ucheba.ru uchi.ru uteka.ru vedomosti.ru vesti.ru webinar.ru wfolio.ru wi-fi.ru wikireading.ru wpps.ru zoon.ru</code>
+</p>
+Рекомендую оставить <code>apteka.ru</code> - работает везде
+</details>
+
+<label for="mSni" class="second">SNI для Masque</label>
+<input type="text" id="mSni" value="yandex.ru" placeholder="yandex.ru" autocomplete="off" autocapitalize="off" spellcheck="false">
+
+<details>
+<summary>Какой домен выбрать для MASQUE?</summary>
+<p>Абсолютно любой, кроме заблокированных</p>
+Рекомендую просто оставить <code>yandex.ru</code>, так как он всегда работает
+</details>
+
+<button class="go" id="gen">Сгенерировать</button>
+
+<div id="msg" hidden></div>
+
+<div class="acts">
+  <button id="bJson" disabled><svg><use href="static/symbols.svg#xray"></use></svg>Скачать Warp.json</button>
+  <button id="bSub" disabled><svg><use id="ic" href="static/symbols.svg#link2"></use></svg>Скопировать подписку</button>
+  <a href="#" id="bAgain" hidden>Сгенерировать снова</a>
+</div>
+</main>
+
+<script src="static/x25519.js"></script>
+<script src="static/p256.js"></script>
+<script src="static/script.js"></script>
+</body>
+</html>

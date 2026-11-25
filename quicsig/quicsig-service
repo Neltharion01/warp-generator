@@ -1,0 +1,6 @@
+#!/sbin/openrc-run
+
+command="/usr/local/bin/quicsig"
+pidfile="/run/${RC_SVCNAME}.pid"
+command_background=true
+error_log="/dev/null"
