@@ -1,0 +1,10 @@
+#!/sbin/openrc-run
+
+command="/usr/bin/python"
+command_args="/etc/drakovpn/warp-subs/main.py"
+directory="/etc/drakovpn/warp-subs"
+pidfile="/run/${RC_SVCNAME}.pid"
+command_background=true
+
+output_log="/dev/null"
+error_log="/var/log/warp-subs.log"
