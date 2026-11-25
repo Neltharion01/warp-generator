@@ -304,7 +304,7 @@ def parse_masque_secret(secret):
 
 FORMATS = ("json", "amneziawg");
 
-def build_body(ua, accept, fmt, url, wg, m, sni, msni):
+def build_body(ua, fmt, url, wg, m, sni, msni):
     # Returns (body, content type)
     # An explicit format overrides everything that is guessed from the client
     if fmt == "json":
@@ -321,9 +321,6 @@ def build_body(ua, accept, fmt, url, wg, m, sni, msni):
     elif ua.startswith("INCY/"):
         # INCY can't parse returned xray-json, only awg link works
         return build_incy(wg, sni), None;
-    # The generator page downloads the xray json with fetch(), and a browser cannot change User-Agent
-    if "application/json" in accept:
-        return build_xray(wg, m, sni, msni), "application/json; charset=utf-8";
     if ua.startswith("Mozilla/5.0"):
         return build_html(url, wg, m, sni, msni), "text/html; charset=utf-8";
     return build_xray(wg, m, sni, msni), "application/json; charset=utf-8";
@@ -371,7 +368,7 @@ class SubscriptionServer(BaseHTTPRequestHandler):
 
         full_url = sub_url(parts[2], parts[3], sni, msni);
         try:
-            cfg, content_type = build_body(ua, self.headers.get("Accept", ""), fmt, full_url, wg, m, sni, msni);
+            cfg, content_type = build_body(ua, fmt, full_url, wg, m, sni, msni);
         except UpstreamError as e:
             self.log_error("signature service error: %r", e);
             return self.send_error(500);
