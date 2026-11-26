@@ -94,7 +94,7 @@ RandomTrailers = on
 [Peer]
 PublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
 AllowedIPs = 0.0.0.0/0, ::/0
-Endpoint = 162.159.192.1:878
+Endpoint = 162.159.195.1:878
 """
 
 def build_throne(private_key, ipv6_addr, client_id, sni):
@@ -109,7 +109,7 @@ def build_throne(private_key, ipv6_addr, client_id, sni):
     };
     for i, sig in enumerate(quic_signature(sni)):
         opts["i" + str(i+1)] = "<b 0x" + sig + ">";
-    return "wg://162.159.192.1:878?" + urlencode(opts, quote_via=quote) + "#" + quote(WG_NAME);
+    return "wg://162.159.195.1:878?" + urlencode(opts, quote_via=quote) + "#" + quote(WG_NAME);
 
 def build_incy(wg, sni):
     return "awg://" + base64.urlsafe_b64encode(build_amneziawg(wg["private_key"], wg["ipv6"], sni).encode()).decode().rstrip("=");
@@ -175,7 +175,7 @@ def xray_wireguard(wg, sni):
             ],
             "mtu": 1280,
             "peers": [{
-                "endpoint": "162.159.192.1:878",
+                "endpoint": "162.159.195.1:878",
                 "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
             }],
             "remoteDNS": [
