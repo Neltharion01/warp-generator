@@ -166,7 +166,8 @@ $("bAwg").onclick = async () => {
     // masque части нет ("_"), conf собирает сервер подписок
     const r = await fetch(`${SUB}${wgSecret(a)}/_?${new URLSearchParams({sni,format:"amneziawg"})}`);
     if(!r.ok) throw new Error("подписка: HTTP "+r.status);
-    download("WARP.conf",await r.text(),"text/plain");
+    // не text/plain: по нему Chrome дописывает .txt, и файл сохраняется как WARP.conf.txt
+    download("WARP.conf",await r.text(),"application/octet-stream");
     msg("");
   }catch(e){ msg("Ошибка: "+(e.message||e),true); }
   $("bAwg").disabled = false;
