@@ -80,10 +80,10 @@ function save(name,text,type){
 }
 
 // ===== UI =====
-function msg(t,err) {
-    $("msg").hidden=t.length==0;
-    $("msg").textContent=t;
-    $("msg").className=err?"e":"";
+function msg(t,err,id="msg") {
+    $(id).hidden=t.length==0;
+    $(id).textContent=t;
+    $(id).className=err?"e":"";
 }
 const acts=["bJson","bSub"];
 function setActive(on){ acts.forEach(i=>$(i).disabled=!on); }
@@ -157,8 +157,10 @@ $("bSub").onclick = async () => {
 
 // Отдельный генератор AmneziaWG: создаёт только wireguard аккаунт и сразу скачивает conf.
 // S и M, а значит и остальные кнопки, не затрагиваются
+// Статус пишется под самой кнопкой AmneziaWG (msgAwg), а не в общую строку под первой кнопкой
+const msgAwg = (t,err) => msg(t,err,"msgAwg");
 $("bAwg").onclick = async () => {
-  $("bAwg").disabled = true; msg("Генерируем…");
+  $("bAwg").disabled = true; msgAwg("Генерируем…");
   try{
     const sni = $("sni").value.trim() || $("sni").placeholder;
     if(!validHost(sni)) throw new Error("некорректный SNI");
@@ -168,8 +170,8 @@ $("bAwg").onclick = async () => {
     if(!r.ok) throw new Error("подписка: HTTP "+r.status);
     // не text/plain: по нему Chrome дописывает .txt, и файл сохраняется как WARP.conf.txt
     download("WARP.conf",await r.text(),"application/octet-stream");
-    msg("");
-  }catch(e){ msg("Ошибка: "+(e.message||e),true); }
+    msgAwg("");
+  }catch(e){ msgAwg("Ошибка: "+(e.message||e),true); }
   $("bAwg").disabled = false;
 };
 

@@ -18,8 +18,9 @@ button.go:hover:not(:disabled){border-color:var(--text)}
 .acts button{display:flex;align-items:center;justify-content:center;gap:10px}
 .acts svg{width:20px;height:20px;flex:none}
 .awg{margin-top:28px}
-#msg{margin-top:10px;min-height:1.4em;font-size:.9rem;color:var(--mute)}
-#msg.e{color:var(--err)}
+#msg,#msgAwg{min-height:1.4em;font-size:.9rem;color:var(--mute)}
+#msg{margin-top:10px}
+#msg.e,#msgAwg.e{color:var(--err)}
 #bAgain{color:var(--acc)}
 summary{color:var(--btn-fg)}
 details{background:var(--btn);margin-top:16px;padding:8px}
